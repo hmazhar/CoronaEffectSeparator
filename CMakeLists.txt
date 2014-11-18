@@ -13,36 +13,47 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 PROJECT(CoronaElectrostaticSeparator)
 
-
-
 #--------------------------------------------------------------
-# NOTE!   use find_package() to define ChronoEngine libraries and variables, 
-#         along with some optional units (components).
-#         This requires that you copied FindChronoEngine.cmake in
-#         the Modules/ directory of your Cmake installation. If it 
-#         is not there, you can copy it in a cmake/ directory in your project, 
-#         and add that directory to the search path of CMake by typing
-#         set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-#find_package(ChronoEngine   COMPONENTS unit_IRRLICHT unit_POSTPROCESS unit_FEM unit_PYPARSER)
-find_package(ChronoEngine   COMPONENTS unit_IRRLICHT unit_PYPARSER unit_POSTPROCESS)
+include(cmake/SBELUtils.cmake)
+enable_openmp_support()
+enable_cuda_support()
 
+FIND_PACKAGE(ChronoEngine)
+FIND_PACKAGE(GLM)
+FIND_PACKAGE(GLFW)
+FIND_PACKAGE(ZLIB)
 
+SET(CHRONO_PARALLEL_INC  ""    CACHE   PATH    "Where is ChronoEngine Source located")
+SET(CHRONO_PARALLEL_LIB_PATH  ""   CACHE    PATH    "Where is ChronoParallel lib located")
+SET(BLAZE_DIR ""  CACHE PATH   "Where is Blaze located?")
 
+FIND_LIBRARY(CHRONO_LIB_PARALLEL NAMES ChronoEngine_Parallel PATHS ${CHRONO_PARALLEL_LIB_PATH} REQUIRED)
+FIND_LIBRARY(CHRONO_LIB_UTILS NAMES ChronoEngine_Utils PATHS ${CHRONO_PARALLEL_LIB_PATH} REQUIRED)
+FIND_LIBRARY(CHRONO_LIB_OPENGL NAMES ChronoEngine_Opengl PATHS ${CHRONO_PARALLEL_LIB_PATH} REQUIRED)
 #--------------------------------------------------------------
-#         After the ChronoEngine package has been found, you
-#         can add its include directories with the headers. 
-#         Use ${CHRONOENGINE_INCLUDES} for this. 
+SET(LIBRARIES ${CHRONOENGINE_LIBRARY} ${CHRONO_LIB_PARALLEL} ${CHRONO_LIB_UTILS}  ${CHRONO_LIB_OPENGL} ${ZLIB_LIBRARIES} )
 
-INCLUDE_DIRECTORIES(  ${CHRONOENGINE_INCLUDES}  )
-
+include_directories(
+    ${CHRONOENGINE_INCLUDES}
+    ${CHRONO_PARALLEL_INC}
+    ${GLFW_INCLUDE_DIR}
+    ${BLAZE_DIR}
+    "${CHRONO_PARALLEL_LIB_PATH}/../" 
+    "${CUDA_TOOLKIT_ROOT_DIR}/include"
+    "${CUDA_SDK_ROOT_DIR}/common/inc"
+    ${ZLIB_INCLUDE_DIRS}
+    ${CMAKE_SOURCE_DIR}
+    )
 
 #--------------------------------------------------------------
 #         Set c++ sources for building the exe, as usual in CMake
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-ADD_EXECUTABLE(conveyor     	source/conveyor_Ida.cpp
+ADD_EXECUTABLE(conveyor
+                source/conveyor_Ida.cpp
 				source/SimulatorCES.h				
 				source/UserInterfaceEventReceiver.cpp
 				source/UserInterfaceEventReceiver.h
@@ -55,90 +66,9 @@ ADD_EXECUTABLE(conveyor     	source/conveyor_Ida.cpp
 				source/ParserChDistribution.h )
 
 #--------------------------------------------------------------
-#         Avoid logging too many warnings for the Irrlicht unit
-
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-	SET(CH_BUILDFLAGS "${CH_BUILDFLAGS} /wd4275")
-ENDIF()
 
 #--------------------------------------------------------------
-#         The following is needed for some platforms
-
-SET_TARGET_PROPERTIES(conveyor PROPERTIES
-	COMPILE_FLAGS "${CH_BUILDFLAGS}" 
-	LINK_FLAGS "${CH_LINKERFLAG_EXE}"   )
-
-	
-#--------------------------------------------------------------
-#         Uncomment the following if you want the executable to 
-#         go into some specific directory: 
-#            SET (CH_BINDIR_DEBUG   "" CACHE PATH "Where are your Chrono debug binaries (.dll, .exe etc.) installed?")
-#            SET (CH_BINDIR_RELEASE "" CACHE PATH "Where are your Chrono release binaries (.dll, .exe etc.) installed?")
-#            set_target_property(conveyor RUNTIME_OUTPUT_DIRECTORY_DEBUG   "${CH_BINDIR_DEBUG}")
-#            set_target_property(conveyor RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CH_BINDIR_RELEASE}")
-#         This done, you do not need to copy all the ChronoEngine.dll 
-#         files in the output directory; also, the bin/data/ dir
-#         will be shared by all programs.
-
-# OTHERWISE, VICEVERSA, copy the .dll files in your .exe folder:
-# This will help because after you compile the program, the
-# ChronoEngine dll will be copied in the same directory (in case
-# someone has updated ChronoEngine you do not have to remember to 
-# update the copy of the dll in your folder)
-# FOR WINDOWS ONLY****
-
-SET (CH_BINDIR_DEBUG   "" CACHE PATH "Where are your Chrono debug binaries (.dll, .exe etc.) installed?")
-SET (CH_BINDIR_RELEASE "" CACHE PATH "Where are your Chrono release binaries (.dll, .exe etc.) installed?")
-
-#get_target_property( MY_RUNTIME_DIR_DEBUG  conveyor RUNTIME_OUTPUT_DIRECTORY_DEBUG)  do not work..
-#get_target_property( MY_RUNTIME_DIR_RELEASE conveyor RUNTIME_OUTPUT_DIRECTORY_RELEASE)  do not work..
-
-MESSAGE( STATUS " runtime dir debug: " ${MY_RUNTIME_DIR_DEBUG} )
-
-ADD_CUSTOM_COMMAND(
-	TARGET conveyor
-	POST_BUILD
-#	COMMAND ${CMAKE_COMMAND} -E copy
-#		"${CH_BINDIR_DEBUG}/ChronoEngine.dll"  "${CMAKE_BINARY_DIR}/Debug/"
-#	COMMAND ${CMAKE_COMMAND} -E copy
-#		"${CH_BINDIR_DEBUG}/ChronoEngine_POSTPROCESS.dll"  "${CMAKE_BINARY_DIR}/Debug/"
-#	COMMAND ${CMAKE_COMMAND} -E copy
-#		"${CH_BINDIR_DEBUG}/ChronoEngine_IRRLICHT.dll"  "${CMAKE_BINARY_DIR}/Debug/"
-#	COMMAND ${CMAKE_COMMAND} -E copy
-#		"${CH_BINDIR_DEBUG}/ChronoEngine_PYPARSER.dll"  "${CMAKE_BINARY_DIR}/Debug/"
-#	COMMAND ${CMAKE_COMMAND} -E copy
-#		"${CH_BINDIR_DEBUG}/ChronoEngine_FEM.dll"  "${CMAKE_BINARY_DIR}/Debug/"
-#	COMMAND ${CMAKE_COMMAND} -E copy
-#		"${CH_BINDIR_DEBUG}/Irrlicht.dll"  "${CMAKE_BINARY_DIR}/Debug/"
-		
-	COMMAND ${CMAKE_COMMAND} -E copy
-		"${CH_BINDIR_RELEASE}/ChronoEngine.dll"  "${CMAKE_BINARY_DIR}/Release/"
-	COMMAND ${CMAKE_COMMAND} -E copy
-		"${CH_BINDIR_RELEASE}/ChronoEngine_IRRLICHT.dll"  "${CMAKE_BINARY_DIR}/Release/"
-	COMMAND ${CMAKE_COMMAND} -E copy
-		"${CH_BINDIR_RELEASE}/ChronoEngine_POSTPROCESS.dll"  "${CMAKE_BINARY_DIR}/Release/"
-	COMMAND ${CMAKE_COMMAND} -E copy
-		"${CH_BINDIR_RELEASE}/ChronoEngine_PYPARSER.dll"  "${CMAKE_BINARY_DIR}/Release/"
-#	COMMAND ${CMAKE_COMMAND} -E copy
-#		"${CH_BINDIR_RELEASE}/ChronoEngine_FEM.dll"  "${CMAKE_BINARY_DIR}/Release/"
-	COMMAND ${CMAKE_COMMAND} -E copy
-		"${CH_BINDIR_RELEASE}/Irrlicht.dll"  "${CMAKE_BINARY_DIR}/Release/"
-		
-	COMMAND ${CMAKE_COMMAND} -E copy_directory
-		"${CMAKE_SOURCE_DIR}/objects"  "${CMAKE_BINARY_DIR}/objects"
-)
-
 
 #--------------------------------------------------------------
-#  NOTE!  In the following, at least add the following line
-#         in order to link all the required libraries (the main 
-#         ChronoEngine library and all other libraries of units 
-#         defined with the COMPONENTS parameters in find_package)
-#          
 
-TARGET_LINK_LIBRARIES(conveyor
-	${CHRONOENGINE_LIBRARIES}
- 	)
-
-# this is only to simplify the GUI of CMake 
-MARK_AS_ADVANCED(CMAKE_INSTALL_PREFIX)
+TARGET_LINK_LIBRARIES(conveyor ${CHRONOENGINE_LIBRARIES})
