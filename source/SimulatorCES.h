@@ -7,8 +7,6 @@
 /// Authors I. Critelli, A. Tasora, 2014
 ///
 
-
-
 #include "physics/CHsystem.h"
 #include "physics/ChBodyEasy.h"
 #include "physics/CHconveyor.h"
@@ -24,8 +22,6 @@
 #include "particlefactory/ChParticleProcessor.h"
 
 #include <fstream>
-#include "unit_PYTHON/ChPython.h"
-#include "unit_POSTPROCESS/ChPovRay.h"
 
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
@@ -57,14 +53,14 @@ class SimulatorCES {
   // The ChronoENGINE physical system
   ChSystem mphysicalSystem;
 
-  ElectricForcesCES ces_forces;  // this contains data for computing the CES electric forces
+  ElectricForcesCES ces_forces;    // this contains data for computing the CES electric forces
 
   ChParticleEmitter emitter;
   ChSharedPtr<ChRandomParticlePositionRectangleOutlet> emitter_positions;
   ChSharedPtr<ChRandomParticleAlignment> emitter_rotations;
 
-  double drumspeed_rpm;    // [rpm]
-  double drumspeed_radss;  //[rad/s]
+  double drumspeed_rpm;      // [rpm]
+  double drumspeed_radss;    //[rad/s]
 
   // material surfaces
   float surface_drum_friction;
@@ -109,7 +105,7 @@ class SimulatorCES {
   bool irr_cast_shadows;
   int totframes;
   bool init_particle_speed;
-  double particle_magnification;  // for larger visualization of particle
+  double particle_magnification;    // for larger visualization of particle
   std::string solidworks_py_modelfile;
   std::string results_file;
   double timestep;
@@ -124,12 +120,12 @@ class SimulatorCES {
     // Initialize member data:
 
     solidworks_py_modelfile =
-        "../CAD_conveyor/conveyor_Ida";  // note! do not add ".py" after the filename
+        "../CAD_conveyor/conveyor_Ida";    // note! do not add ".py" after the filename
 
     results_file = "output/results.dat";
 
     drumspeed_rpm = 44.8;
-    drumspeed_radss = drumspeed_rpm * ((2.0 * CH_C_PI) / 60.0);  //[rad/s]
+    drumspeed_radss = drumspeed_rpm * ((2.0 * CH_C_PI) / 60.0);    //[rad/s]
 
     // sphrad = 0.38e-3;
     // sphrad2 = 0.25e-3;
@@ -153,8 +149,8 @@ class SimulatorCES {
     max_particle_age = 2;
 
     // nozzle sizes
-    znozzlesize = 0.182;  //**from CAD, nozzle z width
-    xnozzlesize = 0.1;    //**from CAD, nozzle x width
+    znozzlesize = 0.182;    //**from CAD, nozzle z width
+    xnozzlesize = 0.1;      //**from CAD, nozzle x width
 
     flowmeter_xmin = 0.28;
     flowmeter_xmax = flowmeter_xmin + 0.3;
@@ -194,7 +190,7 @@ class SimulatorCES {
 
     init_particle_speed = true;
 
-    particle_magnification = 3;  // for larger visualization of particle
+    particle_magnification = 3;    // for larger visualization of particle
 
     timestep = 0.001;
 
@@ -203,14 +199,14 @@ class SimulatorCES {
     splitters_collide = true;
 
     // Set small collision envelopes for objects that will be created from now on..
-    ChCollisionModel::SetDefaultSuggestedEnvelope(0.001);  // 0.002
-    ChCollisionModel::SetDefaultSuggestedMargin(0.0005);   // 0.0008
+    ChCollisionModel::SetDefaultSuggestedEnvelope(0.001);    // 0.002
+    ChCollisionModel::SetDefaultSuggestedMargin(0.0005);     // 0.0008
     // Set contact breaking/merging tolerance of Bullet:
     ChCollisionSystemBullet::SetContactBreakingThreshold(0.001);
 
     // Important! dt is small, and particles are small, so it's better to keep this small...
     mphysicalSystem.SetMaxPenetrationRecoverySpeed(
-        0.15);  // not needed in INT_TASORA, only for INT_ANITESCU
+        0.15);    // not needed in INT_TASORA, only for INT_ANITESCU
     mphysicalSystem.SetMinBounceSpeed(0.1);
 
     // In the following there is a default initialization of the
@@ -222,8 +218,8 @@ class SimulatorCES {
     // ---Initialize the randomizer for positions
     emitter_positions = ChSharedPtr<ChRandomParticlePositionRectangleOutlet>(
         new ChRandomParticlePositionRectangleOutlet);
-    emitter_positions->OutletWidth() = 0.1;     // default x outlet size, from CAD;
-    emitter_positions->OutletHeight() = 0.182;  // default y outlet size, from CAD;
+    emitter_positions->OutletWidth() = 0.1;       // default x outlet size, from CAD;
+    emitter_positions->OutletHeight() = 0.182;    // default y outlet size, from CAD;
     emitter.SetParticlePositioner(emitter_positions);
 
     // ---Initialize the randomizer for alignments
@@ -258,7 +254,7 @@ class SimulatorCES {
         electric_asset->material_type = ElectricParticleProperty::e_mat_metal;
         electric_asset->conductivity = 58000000;
         electric_asset->birthdate = this->systemreference->GetChTime();
-        ChVector<> Cradii;  // use equivalent-inertia ellipsoid to get characteristic size:
+        ChVector<> Cradii;    // use equivalent-inertia ellipsoid to get characteristic size:
         ChVector<> Ine = mbody->GetInertiaXX();
         Cradii.x = sqrt((5. / (2. * mbody->GetMass())) * (Ine.y + Ine.z - Ine.x));
         Cradii.y = sqrt((5. / (2. * mbody->GetMass())) * (Ine.x + Ine.z - Ine.y));
@@ -298,7 +294,7 @@ class SimulatorCES {
         electric_asset->material_type = ElectricParticleProperty::e_mat_plastic;
         electric_asset->conductivity = 0;
         electric_asset->birthdate = this->systemreference->GetChTime();
-        ChVector<> Cradii;  // use equivalent-inertia ellipsoid to get characteristic size:
+        ChVector<> Cradii;    // use equivalent-inertia ellipsoid to get characteristic size:
         ChVector<> Ine = mbody->GetInertiaXX();
         Cradii.x = sqrt((5. / (2. * mbody->GetMass())) * (Ine.y + Ine.z - Ine.x));
         Cradii.y = sqrt((5. / (2. * mbody->GetMass())) * (Ine.x + Ine.z - Ine.y));
@@ -321,8 +317,8 @@ class SimulatorCES {
     // Create a parent ChRandomShapeCreator that 'mixes' the two generators above,
     // mixing them with a given percentual:
     ChSharedPtr<ChRandomShapeCreatorFromFamilies> mcreatorTot(new ChRandomShapeCreatorFromFamilies);
-    mcreatorTot->AddFamily(mcreator_metal, 0.4);    // 1st creator family, with percentual
-    mcreatorTot->AddFamily(mcreator_plastic, 0.4);  // 2nd creator family, with percentual
+    mcreatorTot->AddFamily(mcreator_metal, 0.4);      // 1st creator family, with percentual
+    mcreatorTot->AddFamily(mcreator_plastic, 0.4);    // 2nd creator family, with percentual
     mcreatorTot->Setup();
 
     // Finally, tell to the emitter that it must use the 'mixer' above:
@@ -366,127 +362,127 @@ class SimulatorCES {
 
       char* token;
 
-      token = (char*) "solidworks_exported_model";
+      token = (char*)"solidworks_exported_model";
       if (document.HasMember(token)) {
         if (!document[token].IsString()) {
           throw(ChException("Invalid filename string after '" + std::string(token) + "'"));
         }
         this->solidworks_py_modelfile = document[token].GetString();
       }
-      token = (char*) "results_file";
+      token = (char*)"results_file";
       if (document.HasMember(token)) {
         if (!document[token].IsString()) {
           throw(ChException("Invalid filename string after '" + std::string(token) + "'"));
         }
         this->results_file = document[token].GetString();
       }
-      token = (char*) "drum_rpm";
+      token = (char*)"drum_rpm";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         this->drumspeed_rpm = document[token].GetDouble();
-        this->drumspeed_radss = drumspeed_rpm * ((2.0 * CH_C_PI) / 60.0);  //[rad/s]
+        this->drumspeed_radss = drumspeed_rpm * ((2.0 * CH_C_PI) / 60.0);    //[rad/s]
       }
-      token = (char*) "save_each_Nsteps";
+      token = (char*)"save_each_Nsteps";
       if (document.HasMember(token)) {
         if (!document[token].IsInt()) {
           throw(ChException("Invalid integer number after '" + std::string(token) + "'"));
         }
         this->saveEachNframes = document[token].GetInt();
       }
-      token = (char*) "save_dataset";
+      token = (char*)"save_dataset";
       if (document.HasMember(token)) {
         if (!document[token].IsBool()) {
           throw(ChException("Invalid true/false flag after '" + std::string(token) + "'"));
         }
         this->save_dataset = document[token].GetBool();
       }
-      token = (char*) "save_irrlicht_screenshots";
+      token = (char*)"save_irrlicht_screenshots";
       if (document.HasMember(token)) {
         if (!document[token].IsBool()) {
           throw(ChException("Invalid true/false flag after '" + std::string(token) + "'"));
         }
         this->save_irrlicht_screenshots = document[token].GetBool();
       }
-      token = (char*) "save_POV_screenshots";
+      token = (char*)"save_POV_screenshots";
       if (document.HasMember(token)) {
         if (!document[token].IsBool()) {
           throw(ChException("Invalid true/false flag after '" + std::string(token) + "'"));
         }
         this->save_POV_screenshots = document[token].GetBool();
       }
-      token = (char*) "timestep";
+      token = (char*)"timestep";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         this->timestep = document[token].GetDouble();
       }
-      token = (char*) "Tmax";
+      token = (char*)"Tmax";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         this->Tmax = document[token].GetDouble();
       }
-      token = (char*) "surface_drum_friction";
+      token = (char*)"surface_drum_friction";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         this->surface_drum_friction = (float)document[token].GetDouble();
       }
-      token = (char*) "surface_drum_rolling_friction";
+      token = (char*)"surface_drum_rolling_friction";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         this->surface_drum_rolling_friction = (float)document[token].GetDouble();
       }
-      token = (char*) "surface_drum_spinning_friction";
+      token = (char*)"surface_drum_spinning_friction";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         this->surface_drum_spinning_friction = (float)document[token].GetDouble();
       }
-      token = (char*) "surface_drum_restitution";
+      token = (char*)"surface_drum_restitution";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         this->surface_drum_restitution = (float)document[token].GetDouble();
       }
-      token = (char*) "surface_plate_friction";
+      token = (char*)"surface_plate_friction";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         this->surface_plate_friction = (float)document[token].GetDouble();
       }
-      token = (char*) "surface_plate_rolling_friction";
+      token = (char*)"surface_plate_rolling_friction";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         this->surface_plate_rolling_friction = (float)document[token].GetDouble();
       }
-      token = (char*) "surface_plate_spinning_friction";
+      token = (char*)"surface_plate_spinning_friction";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         this->surface_plate_spinning_friction = (float)document[token].GetDouble();
       }
-      token = (char*) "surface_plate_restitution";
+      token = (char*)"surface_plate_restitution";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         this->surface_plate_restitution = (float)document[token].GetDouble();
       }
-      token = (char*) "surface_particles_friction";
+      token = (char*)"surface_particles_friction";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
@@ -494,7 +490,7 @@ class SimulatorCES {
         // this->surface_particles_friction = (float)document[token].GetDouble();
         this->surface_particles->SetFriction((float)document[token].GetDouble());
       }
-      token = (char*) "surface_particles_rolling_friction";
+      token = (char*)"surface_particles_rolling_friction";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
@@ -502,7 +498,7 @@ class SimulatorCES {
         // this->surface_particles_rolling_friction = (float)document[token].GetDouble();
         this->surface_particles->SetRollingFriction((float)document[token].GetDouble());
       }
-      token = (char*) "surface_particles_spinning_friction";
+      token = (char*)"surface_particles_spinning_friction";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
@@ -510,7 +506,7 @@ class SimulatorCES {
         // this->surface_particles_spinning_friction = (float)document[token].GetDouble();
         this->surface_particles->SetSpinningFriction((float)document[token].GetDouble());
       }
-      token = (char*) "surface_particles_restitution";
+      token = (char*)"surface_particles_restitution";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
@@ -518,96 +514,96 @@ class SimulatorCES {
         // this->surface_particles_restitution = (float)document[token].GetDouble();
         this->surface_particles->SetRestitution((float)document[token].GetDouble());
       }
-      token = (char*) "max_particle_age";
+      token = (char*)"max_particle_age";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         this->max_particle_age = (float)document[token].GetDouble();
       }
-      token = (char*) "default_collision_envelope";
+      token = (char*)"default_collision_envelope";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         ChCollisionModel::SetDefaultSuggestedEnvelope(document[token].GetDouble());
       }
-      token = (char*) "default_collision_margin";
+      token = (char*)"default_collision_margin";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         ChCollisionModel::SetDefaultSuggestedMargin(document[token].GetDouble());
       }
-      token = (char*) "default_contact_breaking";
+      token = (char*)"default_contact_breaking";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         ChCollisionSystemBullet::SetContactBreakingThreshold(document[token].GetDouble());
       }
-      token = (char*) "max_penetration_recovery_speed";
+      token = (char*)"max_penetration_recovery_speed";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         mphysicalSystem.SetMaxPenetrationRecoverySpeed(document[token].GetDouble());
       }
-      token = (char*) "min_bounce_speed";
+      token = (char*)"min_bounce_speed";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         mphysicalSystem.SetMinBounceSpeed(document[token].GetDouble());
       }
-      token = (char*) "flowmeter_xmin";
+      token = (char*)"flowmeter_xmin";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         this->flowmeter_xmin = document[token].GetDouble();
       }
-      token = (char*) "flowmeter_xmax";
+      token = (char*)"flowmeter_xmax";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         this->flowmeter_xmax = document[token].GetDouble();
       }
-      token = (char*) "flowmeter_y";
+      token = (char*)"flowmeter_y";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         this->flowmeter_y = document[token].GetDouble();
       }
-      token = (char*) "flowmeter_width";
+      token = (char*)"flowmeter_width";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         this->flowmeter_width = document[token].GetDouble();
       }
-      token = (char*) "flowmeter_bins";
+      token = (char*)"flowmeter_bins";
       if (document.HasMember(token)) {
         if (!document[token].IsNumber()) {
           throw(ChException("Invalid number after '" + std::string(token) + "'"));
         }
         this->flowmeter_bins = document[token].GetInt();
       }
-      token = (char*) "splitters_collide";
+      token = (char*)"splitters_collide";
       if (document.HasMember(token)) {
         if (!document[token].IsBool()) {
           throw(ChException("Invalid true/false flag after '" + std::string(token) + "'"));
         }
         this->splitters_collide = document[token].GetBool();
       }
-      token = (char*) "CES_forces";
+      token = (char*)"CES_forces";
       if (document.HasMember(token)) {
         // Parse the settings of the emitter, emitter positioner etc.
         ParserElectricForcesCES::Parse(this->ces_forces, document[token]);
       }
-      token = (char*) "emitter";
+      token = (char*)"emitter";
       if (document.HasMember(token)) {
         // Parse the settings of the emitter, emitter positioner etc.
         ParserEmitter::Parse(this->emitter,
@@ -665,14 +661,14 @@ class SimulatorCES {
       }
 
       if (to_delete) {
-        abody->AddRef();                          // dirty trick to convert basic pointer to..
-        ChSharedPtr<ChBody> mysharedbody(abody);  // ..shared pointer
+        abody->AddRef();                            // dirty trick to convert basic pointer to..
+        ChSharedPtr<ChBody> mysharedbody(abody);    // ..shared pointer
 
         mysystem.Remove(mysharedbody);
 
         // mysharedbody->RemoveRef(); //***NOT needed - previously needed cause always Add() to POV
         // exporter..
-        i--;  // this because if deleted, the rest of the array is shifted back one position..
+        i--;    // this because if deleted, the rest of the array is shifted back one position..
       }
     }
   }
@@ -685,7 +681,6 @@ class SimulatorCES {
   ///
   int simulate() {
 
-
     // 3) fetch coordinate values and objects from what was imported from CAD
 
     // ChCoordsys<> conveyor_csys = CSYSNORM;
@@ -694,7 +689,7 @@ class SimulatorCES {
     if (my_marker.IsNull())
       GetLog() << "Error: cannot find centro_nastro marker from its name in the C::E system! \n";
     else
-      conveyor_csys = my_marker->GetAbsCoord();  // fetch both pos and rotation of CAD
+      conveyor_csys = my_marker->GetAbsCoord();    // fetch both pos and rotation of CAD
 
     //****Ida
 
@@ -702,19 +697,19 @@ class SimulatorCES {
     if (my_marker.IsNull())
       GetLog() << "Error: cannot find Splitter1 marker from its name in the C::E system! \n";
     else
-      Splitter1_csys = my_marker->GetAbsCoord();  // fetch both pos and rotation of CAD
+      Splitter1_csys = my_marker->GetAbsCoord();    // fetch both pos and rotation of CAD
 
     my_marker = mphysicalSystem.SearchMarker("Splitter2");
     if (my_marker.IsNull())
       GetLog() << "Error: cannot find Splitter2 marker from its name in the C::E system! \n";
     else
-      Splitter2_csys = my_marker->GetAbsCoord();  // fetch both pos and rotation of CAD
+      Splitter2_csys = my_marker->GetAbsCoord();    // fetch both pos and rotation of CAD
 
     my_marker = mphysicalSystem.SearchMarker("Spazzola");
     if (my_marker.IsNull())
       GetLog() << "Error: cannot find Spazzola marker from its name in the C::E system! \n";
     else
-      Spazzola_csys = my_marker->GetAbsCoord();  // fetch both pos and rotation of CAD
+      Spazzola_csys = my_marker->GetAbsCoord();    // fetch both pos and rotation of CAD
 
     //***Ida
 
@@ -722,16 +717,16 @@ class SimulatorCES {
     if (my_marker.IsNull())
       GetLog() << "Error: cannot find centro_nozzle marker from its name in the C::E system! \n";
     else
-      nozzle_csys = my_marker->GetAbsCoord();  // fetch both pos and rotation of CAD
+      nozzle_csys = my_marker->GetAbsCoord();    // fetch both pos and rotation of CAD
 
     emitter_positions->Outlet() = nozzle_csys;
-    emitter_positions->Outlet().rot.Q_from_AngAxis(CH_C_PI_2, VECT_X);  // rotate outlet 90� on x
+    emitter_positions->Outlet().rot.Q_from_AngAxis(CH_C_PI_2, VECT_X);    // rotate outlet 90� on x
 
     my_marker = mphysicalSystem.SearchMarker("centro_cilindro");
     if (my_marker.IsNull())
       GetLog() << "Error: cannot find centro_cilindro marker from its name in the C::E system! \n";
     else
-      drum_csys = my_marker->GetAbsCoord();  // fetch both pos and rotation of CAD
+      drum_csys = my_marker->GetAbsCoord();    // fetch both pos and rotation of CAD
 
     // fetch mrigidBodyDrum pointer! will be used for changing the friction, the collision family,
     // and later to create the motor
@@ -757,11 +752,13 @@ class SimulatorCES {
       GetLog() << "ERROR: cannot find Splitter-10 from its name in the C::E system! ! \n";
     else {
       mrigidBodySplitter1->SetBodyFixed(true);
-      mrigidBodySplitter1->GetCollisionModel()->SetFamily(3);                           // rivedere
-      mrigidBodySplitter1->GetCollisionModel()->SetFamilyMaskNoCollisionWithFamily(1);  // rivedere
-      mrigidBodySplitter1->GetCollisionModel()->SetFamilyMaskNoCollisionWithFamily(2);  // rivedere
+      mrigidBodySplitter1->GetCollisionModel()->SetFamily(3);    // rivedere
+      mrigidBodySplitter1->GetCollisionModel()->SetFamilyMaskNoCollisionWithFamily(
+          1);    // rivedere
+      mrigidBodySplitter1->GetCollisionModel()->SetFamilyMaskNoCollisionWithFamily(
+          2);    // rivedere
       mrigidBodySplitter1->SetFriction(0.1f);
-      mrigidBodySplitter1->SetCollide(this->splitters_collide);  // deactivate collision?
+      mrigidBodySplitter1->SetCollide(this->splitters_collide);    // deactivate collision?
     }
 
     ChSharedPtr<ChBodyAuxRef> mrigidBodySplitter2 =
@@ -770,11 +767,13 @@ class SimulatorCES {
       GetLog() << "ERROR: cannot find Splitter2-1 from its name in the C::E system! ! \n";
     else {
       mrigidBodySplitter2->SetBodyFixed(true);
-      mrigidBodySplitter2->GetCollisionModel()->SetFamily(3);                           // rivedere
-      mrigidBodySplitter2->GetCollisionModel()->SetFamilyMaskNoCollisionWithFamily(1);  // rivedere
-      mrigidBodySplitter2->GetCollisionModel()->SetFamilyMaskNoCollisionWithFamily(2);  // rivedere
+      mrigidBodySplitter2->GetCollisionModel()->SetFamily(3);    // rivedere
+      mrigidBodySplitter2->GetCollisionModel()->SetFamilyMaskNoCollisionWithFamily(
+          1);    // rivedere
+      mrigidBodySplitter2->GetCollisionModel()->SetFamilyMaskNoCollisionWithFamily(
+          2);    // rivedere
       mrigidBodySplitter2->SetFriction(0.1f);
-      mrigidBodySplitter2->SetCollide(this->splitters_collide);  // deactivate collision?
+      mrigidBodySplitter2->SetCollide(this->splitters_collide);    // deactivate collision?
     }
 
     ChSharedPtr<ChBodyAuxRef> mrigidBodySpazzola =
@@ -782,9 +781,9 @@ class SimulatorCES {
     if (mrigidBodySpazzola.IsNull())
       GetLog() << "ERROR: cannot find Spazzola-1 from its name in the C::E system! ! \n";
     else {
-      mrigidBodySpazzola->GetCollisionModel()->SetFamily(1);                           // rivedere
-      mrigidBodySpazzola->GetCollisionModel()->SetFamilyMaskNoCollisionWithFamily(2);  // rivedere
-      mrigidBodySpazzola->GetCollisionModel()->SetFamilyMaskNoCollisionWithFamily(3);  // rivedere
+      mrigidBodySpazzola->GetCollisionModel()->SetFamily(1);                             // rivedere
+      mrigidBodySpazzola->GetCollisionModel()->SetFamilyMaskNoCollisionWithFamily(2);    // rivedere
+      mrigidBodySpazzola->GetCollisionModel()->SetFamilyMaskNoCollisionWithFamily(3);    // rivedere
       mrigidBodySpazzola->SetFriction(0.9f);
     }
 
@@ -834,7 +833,7 @@ class SimulatorCES {
       mengine->Set_eng_mode(ChLinkEngine::ENG_MODE_SPEED);
       if (ChSharedPtr<ChFunction_Const> mfun =
               (mengine->Get_spe_funct().DynamicCastTo<ChFunction_Const>()))
-        mfun->Set_yconst(-drumspeed_radss);  // angular speed in [rad/s]
+        mfun->Set_yconst(-drumspeed_radss);    // angular speed in [rad/s]
 
       // Finally, do not forget to add the body to the system:
       mphysicalSystem.Add(mengine);
@@ -852,7 +851,7 @@ class SimulatorCES {
       mengine2->Set_eng_mode(ChLinkEngine::ENG_MODE_SPEED);
       if (ChSharedPtr<ChFunction_Const> mfun =
               (mengine2->Get_spe_funct().DynamicCastTo<ChFunction_Const>()))
-        mfun->Set_yconst(-drumspeed_radss);  // angular speed in [rad/s]
+        mfun->Set_yconst(-drumspeed_radss);    // angular speed in [rad/s]
 
       // Finally, do not forget to add the body to the system:
       mphysicalSystem.Add(mengine2);
@@ -871,8 +870,6 @@ class SimulatorCES {
                                 ChRandomShapeCreator& mcreator) {
         // Set the friction properties (using a shared ChSurfaceMaterial
         mbody->SetMaterialSurface(asurface_material);
-
-
 
         // Disable gyroscopic forces for increased integrator stabilty
         mbody->SetNoGyroTorque(true);
@@ -900,8 +897,8 @@ class SimulatorCES {
     distrrectangle->rectangle_csys =
         ChCoordsys<>(drum_csys.pos + ChVector<>(this->flowmeter_xmin + 0.5 * flowmeter_length,
                                                 this->flowmeter_y,
-                                                0),        // position of center rectangle
-                     Q_from_AngAxis(-CH_C_PI_2, VECT_X));  // rotate rectangle so that its Z is up
+                                                0),          // position of center rectangle
+                     Q_from_AngAxis(-CH_C_PI_2, VECT_X));    // rotate rectangle so that its Z is up
     distrrectangle->margin = 0.05;
     //  -create the counter, with 20x10 resolution of sampling, on x y
     //    This is defined in ProcessFlow.h and distinguishes plastic from metal
@@ -943,13 +940,13 @@ class SimulatorCES {
       // Apply the forces caused by electrodes of the CES machine:
 
       ces_forces.apply_forces(
-          &mphysicalSystem,  // contains all bodies
-          drum_csys,         // pos and rotation of axis of drum (not rotating reference!)
-          drumspeed_radss,   // speed of drum
+          &mphysicalSystem,    // contains all bodies
+          drum_csys,           // pos and rotation of axis of drum (not rotating reference!)
+          drumspeed_radss,     // speed of drum
           totframes);
 
       // Continuosly create debris that fall on the conveyor belt
-      this->emitter.EmitParticles(mphysicalSystem, timestep);  //***TEST***
+      this->emitter.EmitParticles(mphysicalSystem, timestep);    //***TEST***
 
       GetLog() << "Total mass=" << this->emitter.GetTotCreatedMass() << "   "
                << "Total n.part=" << this->emitter.GetTotCreatedParticles() << "   "
@@ -966,7 +963,7 @@ class SimulatorCES {
       if (!mengine.IsNull())
         if (ChSharedPtr<ChFunction_Const> mfun =
                 (mengine->Get_spe_funct().DynamicCastTo<ChFunction_Const>()))
-          mfun->Set_yconst(-drumspeed_radss);  // angular speed in [rad/s]
+          mfun->Set_yconst(-drumspeed_radss);    // angular speed in [rad/s]
     }
 
     // At the end ot the T max simulation time,
@@ -984,6 +981,6 @@ class SimulatorCES {
     return 0;
   }
 
-};  // end of class
+};    // end of class
 
 #endif
