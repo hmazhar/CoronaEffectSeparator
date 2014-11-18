@@ -10,9 +10,9 @@ using namespace chrono;
 class ElectricForcesCES {
  public:
   // data for this type of asset
-  double drumdiameter;
+  double drum_diameter;
   double drum_width;
-  double electrodediameter;
+  double electrode_diameter;
   double U;           // supplied high-voltage [v]
   double L;           // certer distance of rotating roll electrode and electrostatic pole *****ida
   double alpha;       // angle of horizontal line and electrodes center line *****ida
@@ -33,10 +33,10 @@ class ElectricForcesCES {
   /// Default constructor with initialization of drum force parameters
   ///
   ElectricForcesCES() {
-    drumdiameter = 0.320;         // diameter of drum
-    drum_width = 0.3;             // used to switch of electric forces out of drum
-    electrodediameter = 0.038;    // for force computations
-    U = -35000;                   // supplied high-voltage [v]
+    drum_diameter = 0.320;         // diameter of drum
+    drum_width = 0.3;              // used to switch of electric forces out of drum
+    electrode_diameter = 0.038;    // for force computations
+    U = -35000;                    // supplied high-voltage [v]
     L = 0.267;    // certer distance of rotating roll electrode and electrostatic pole *****ida
     alpha = (CH_C_PI / 180) * 30;    // angle of horizontal line and electrodes center line *****ida
     epsilon = 8.85941e-12;           // dielectric constant [F/m] *****ida
@@ -44,6 +44,8 @@ class ElectricForcesCES {
     epsilonR = 2.5;                  // relative permettivity
     eta = 0.0000181;                 // Air drag coefficent [N*s/m^2]
     ro = 1.225;                      // Air density (air) [Kg/m^3]
+
+    j = f = h1 = h2 = 0;
   }
 
   ///
@@ -54,27 +56,26 @@ class ElectricForcesCES {
                     double drumspeed,           // speed of drum
                     int totframes) {
     // Compute parameters on-the-fly (some parameters like L or U might have changed meanwhile..)
-    h1 = (pow(L, 2) + pow((drumdiameter / 2), 2) - ((electrodediameter / 2), 2)) /
-         (2 * L);    // analytical parameter****ida
-    h2 = (pow(L, 2) - pow((drumdiameter / 2), 2) + ((electrodediameter / 2), 2)) /
-         (2 * L);                                         // analytical parameter****ida
-    j = sqrt(pow(h1, 2) - pow((drumdiameter / 2), 2));    // analytical parameter****ida
-    f = U / log(((h1 + j - (drumdiameter / 2)) * (h2 + j - (electrodediameter / 2))) /
-                ((drumdiameter / 2) + j - h1) *
-                ((electrodediameter / 2) + j - h2));    // analytical parameter****ida
+    // analytical parameters****ida
+
+    h1 = (pow(L, 2) + pow((drum_diameter / 2), 2) - ((electrode_diameter / 2), 2)) / (2 * L);
+    h2 = (pow(L, 2) - pow((drum_diameter / 2), 2) + ((electrode_diameter / 2), 2)) / (2 * L);
+    j = sqrt(pow(h1, 2) - pow((drum_diameter / 2), 2));
+    f = U / log(((h1 + j - (drum_diameter / 2)) * (h2 + j - (electrode_diameter / 2))) /
+                ((drum_diameter / 2) + j - h1) * ((electrode_diameter / 2) + j - h2));
 
     // Loop on all bodies:
     for (unsigned int i = 0; i < msystem->Get_bodylist()->size(); i++) {
       ChBody* abody = (*msystem->Get_bodylist())[i];
 
       bool was_a_particle = false;
-      ChSharedPtr<ElectricParticleProperty> electricproperties;    // null by default
+      ChSharedEPPPtr electricproperties;    // null by default
 
       // Fetch the ElectricParticleProperty asset from the list of
       // assets that have been attached to the object, and retrieve the
       // custom data that have been stored. ***ALEX
       for (unsigned int na = 0; na < abody->GetAssets().size(); na++) {
-        ChSharedPtr<ChAsset> myasset = abody->GetAssetN(na);
+        ChSharedAssetPtr myasset = abody->GetAssetN(na);
         if (myasset.IsType<ElectricParticleProperty>()) {
           // OK! THIS WAS A PARTICLE! ***ALEX
           was_a_particle = true;
@@ -192,8 +193,8 @@ class ElectricForcesCES {
             }
           }    // 15000000,750000,450000
           // discharge the particle? (contact w. blade)
-          if (distx < -(drumdiameter * 0.5 - 0.009) && (disty > -(drumdiameter * 0.5 + 0.009)) ||
-              sqrt(pow(distx, 2) + pow(disty, 2)) > (1.03 * drumdiameter * 0.5)) {
+          if (distx < -(drum_diameter * 0.5 - 0.009) && (disty > -(drum_diameter * 0.5 + 0.009)) ||
+              sqrt(pow(distx, 2) + pow(disty, 2)) > (1.03 * drum_diameter * 0.5)) {
             electricproperties->chargeP = 0;    // charge
           }
 
@@ -208,9 +209,9 @@ class ElectricForcesCES {
           electricproperties->ElectricImageForce.z = 0;
 
           // switch off electric forces if too out-of-plane
-          if ((mrelpos.z > drum_width * 0.5) || (mrelpos.z < -drum_width * 0.5))
+          if ((mrelpos.z > drum_width * 0.5) || (mrelpos.z < -drum_width * 0.5)){
             ElectricImageForce = 0;
-
+          }
           abody->Accumulate_force(ElectricImageForce, abody->GetPos(), false);
 
         }    // end if material==plastic

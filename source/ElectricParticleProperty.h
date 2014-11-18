@@ -44,4 +44,8 @@ class ElectricParticleProperty : public ChAsset {
   }
 };
 
+
+typedef ChSharedPtr<ElectricParticleProperty> ChSharedEPPPtr;
+
+
 #endif

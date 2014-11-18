@@ -46,7 +46,7 @@ class ParserElectricForcesCES {
       if (!mval[token].IsNumber()) {
         throw(ChException("Invalid number after '" + std::string(token) + "'"));
       }
-      ces_forces.drumdiameter = mval[token].GetDouble();
+      ces_forces.drum_diameter = mval[token].GetDouble();
     }
     token = (char*)"drum_width";
     if (mval.HasMember(token)) {
@@ -60,7 +60,7 @@ class ParserElectricForcesCES {
       if (!mval[token].IsNumber()) {
         throw(ChException("Invalid number after '" + std::string(token) + "'"));
       }
-      ces_forces.electrodediameter = mval[token].GetDouble();
+      ces_forces.electrode_diameter = mval[token].GetDouble();
     }
   }
 };

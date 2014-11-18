@@ -7,10 +7,9 @@
 /// Authors I. Critelli, A. Tasora, 2014
 ///
 
-#include "physics/CHsystem.h"
-#include "physics/ChBodyEasy.h"
-#include "physics/CHconveyor.h"
-#include "physics/CHbodyAuxRef.h"
+#include "chrono_parallel/physics/ChSystemParallel.h"
+//#include "physics/ChConveyor.h"
+#include "physics/ChBodyAuxRef.h"
 #include "core/ChFileutils.h"
 
 #include "core/ChRealtimeStep.h"
@@ -22,6 +21,7 @@
 #include "particlefactory/ChParticleProcessor.h"
 
 #include <fstream>
+#include <sstream>
 
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
@@ -37,7 +37,6 @@
 // Use the namespace of Chrono
 
 using namespace chrono;
-using namespace chrono::postprocess;
 using namespace chrono::collision;
 using namespace chrono::particlefactory;
 
@@ -51,7 +50,7 @@ class SimulatorCES {
   //
 
   // The ChronoENGINE physical system
-  ChSystem mphysicalSystem;
+  ChSystemParallelDVI mphysicalSystem;
 
   ElectricForcesCES ces_forces;    // this contains data for computing the CES electric forces
 
@@ -185,17 +184,11 @@ class SimulatorCES {
     saveEachNframes = 3;
 
     irr_cast_shadows = true;
-
     totframes = 0;
-
     init_particle_speed = true;
-
     particle_magnification = 3;    // for larger visualization of particle
-
     timestep = 0.001;
-
     Tmax = 0.1;
-
     splitters_collide = true;
 
     // Set small collision envelopes for objects that will be created from now on..
@@ -205,8 +198,8 @@ class SimulatorCES {
     ChCollisionSystemBullet::SetContactBreakingThreshold(0.001);
 
     // Important! dt is small, and particles are small, so it's better to keep this small...
-    mphysicalSystem.SetMaxPenetrationRecoverySpeed(
-        0.15);    // not needed in INT_TASORA, only for INT_ANITESCU
+    // not needed in INT_TASORA, only for INT_ANITESCU
+    mphysicalSystem.SetMaxPenetrationRecoverySpeed(0.15);
     mphysicalSystem.SetMinBounceSpeed(0.1);
 
     // In the following there is a default initialization of the
@@ -648,7 +641,7 @@ class SimulatorCES {
       // assets that have been attached to the object, and retrieve the
       // custom data that have been stored. ***ALEX
       for (unsigned int na = 0; na < abody->GetAssets().size(); na++) {
-        ChSharedPtr<ChAsset> myasset = abody->GetAssetN(na);
+        ChSharedAssetPtr myasset = abody->GetAssetN(na);
         if (myasset.IsType<ElectricParticleProperty>()) {
           ChSharedPtr<ElectricParticleProperty> electricproperties =
               myasset.DynamicCastTo<ElectricParticleProperty>();

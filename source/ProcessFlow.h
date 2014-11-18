@@ -8,12 +8,6 @@ namespace chrono {
 namespace particlefactory {
 
 /// Processed particle will increment 2 NxM matrix mass counters,
-/// one for plastic material and another for metal material in CES system,
-/// so that a statistical distribution of flow over a uv surface
-/// can be obtained. Note that the matrix maps the 0...1 of the u (matrix rows)
-/// and the 0..1 of the v (matrix columns) of the uv surface.
-/// Note: For the moment, this supports only the case of trigger of type
-/// ChParticleEventFlowInRectangle.
 class ProcessFlow : public ChParticleProcessEvent {
  public:
   ProcessFlow(int u_sects = 100, int v_sects = 100) {
@@ -41,11 +35,10 @@ class ProcessFlow : public ChParticleProcessEvent {
 
       // Fetch the ElectricParticleProperty asset from the list
       for (unsigned int na = 0; na < mbody->GetAssets().size(); na++) {
-        ChSharedPtr<ChAsset> myasset = mbody->GetAssetN(na);
+        ChSharedAssetPtr myasset = mbody->GetAssetN(na);
         if (myasset.IsType<ElectricParticleProperty>()) {
           // ok, its a particle!
-          ChSharedPtr<ElectricParticleProperty> electricproperties =
-              myasset.DynamicCastTo<ElectricParticleProperty>();
+          ChSharedEPPPtr electricproperties = myasset.DynamicCastTo<ElectricParticleProperty>();
 
           if (electricproperties->material_type == ElectricParticleProperty::e_mat_plastic) {
             this->mmass_plastic(irow, icol) += mbody->GetMass();
