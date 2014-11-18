@@ -29,7 +29,7 @@ public:
 
 		char* token;
 		
-		token = "type";
+		token = (char*) "type";
 		if (mval.HasMember(token)) 
 		{
 			if (!mval[token].IsString()) {throw (ChException( "Invalid string after '"+std::string(token)+"'"));}
@@ -42,12 +42,12 @@ public:
 				ChSharedPtr<ChRandomShapeCreatorSpheres> mcreator(new ChRandomShapeCreatorSpheres);
 				parsed_creator = mcreator;
 
-				token = "diameter_distribution";
+				token = (char*) "diameter_distribution";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetDiameterDistribution( ParserChDistribution::ParseCreate(mval[token]) );
 				}
-				token = "density";
+				token = (char*) "density";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetDensityDistribution( ParserChDistribution::ParseCreate(mval[token]) );
@@ -60,22 +60,22 @@ public:
 				ChSharedPtr<ChRandomShapeCreatorBoxes> mcreator(new ChRandomShapeCreatorBoxes);
 				parsed_creator = mcreator;
 
-				token = "Xsize_distribution";
+				token = (char*) "Xsize_distribution";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetXsizeDistribution( ParserChDistribution::ParseCreate(mval[token]) );
 				}
-				token = "sizeratioYZ";
+				token = (char*) "sizeratioYZ";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetSizeRatioYZDistribution( ParserChDistribution::ParseCreate(mval[token]) );
 				}
-				token = "sizeratioZ";
+				token = (char*) "sizeratioZ";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetSizeRatioZDistribution( ParserChDistribution::ParseCreate(mval[token]) );
 				}
-				token = "density";
+				token = (char*) "density";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetDensityDistribution( ParserChDistribution::ParseCreate(mval[token]) );
@@ -88,17 +88,17 @@ public:
 				ChSharedPtr<ChRandomShapeCreatorCylinders> mcreator(new ChRandomShapeCreatorCylinders);
 				parsed_creator = mcreator;
 
-				token = "diameter";
+				token = (char*) "diameter";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetDiameterDistribution( ParserChDistribution::ParseCreate(mval[token]) );
 				}
-				token = "lenght_factor";
+				token = (char*) "lenght_factor";
 				if (mval[token].HasMember(token)) {
 					if (!mval.IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetLengthFactorDistribution( ParserChDistribution::ParseCreate(mval[token]) );
 				}
-				token = "density";
+				token = (char*) "density";
 				if (mval[token].HasMember(token)) {
 					if (!mval.IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetDensityDistribution( ParserChDistribution::ParseCreate(mval[token]) );
@@ -111,27 +111,27 @@ public:
 				ChSharedPtr<ChRandomShapeCreatorConvexHulls> mcreator(new ChRandomShapeCreatorConvexHulls);
 				parsed_creator = mcreator;
 
-				token = "npoints";
+				token = (char*) "npoints";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsNumber()) {throw (ChException( "Invalid integer number after '"+std::string(token)+"'"));}
 					mcreator->SetNpoints( mval[token].GetInt()  );
 				}
-				token = "chord";
+				token = (char*) "chord";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetChordDistribution( ParserChDistribution::ParseCreate(mval[token]) );
 				}
-				token = "sizeratioYZ";
+				token = (char*) "sizeratioYZ";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetSizeRatioYZDistribution( ParserChDistribution::ParseCreate(mval[token]) );
 				}
-				token = "sizeratioZ";
+				token = (char*) "sizeratioZ";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetSizeRatioZDistribution( ParserChDistribution::ParseCreate(mval[token]) );
 				}
-				token = "density";
+				token = (char*) "density";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetDensityDistribution( ParserChDistribution::ParseCreate(mval[token]) );
@@ -144,32 +144,32 @@ public:
 				ChSharedPtr<ChRandomShapeCreatorShavings> mcreator(new ChRandomShapeCreatorShavings);
 				parsed_creator = mcreator;
 
-				token = "spacing_factor";
+				token = (char*) "spacing_factor";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsNumber()) {throw (ChException( "Invalid number after '"+std::string(token)+"'"));}
 					mcreator->SetSpheresSpacingFactor( mval[token].GetDouble() );
 				}
-				token = "diameter";
+				token = (char*) "diameter";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetDiameterDistribution( ParserChDistribution::ParseCreate(mval[token]) );
 				}
-				token = "twistU";
+				token = (char*) "twistU";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetTwistDistributionU( ParserChDistribution::ParseCreate(mval[token]) );
 				}
-				token = "twistV";
+				token = (char*) "twistV";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetTwistDistributionV( ParserChDistribution::ParseCreate(mval[token]) );
 				}
-				token = "lengthratio";
+				token = (char*) "lengthratio";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetLengthRatioDistribution( ParserChDistribution::ParseCreate(mval[token]) );
 				}
-				token = "density";
+				token = (char*) "density";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsObject()) {throw (ChException( "Invalid distribution after '"+std::string(token)+"'"));}
 					mcreator->SetDensityDistribution( ParserChDistribution::ParseCreate(mval[token]) );
@@ -183,7 +183,7 @@ public:
 				ChSharedPtr<ChRandomShapeCreatorFromFamilies> mcreator(new ChRandomShapeCreatorFromFamilies);
 				parsed_creator = mcreator;
 
-				char* protoken = "probability_mode";
+				char* protoken = (char*) "probability_mode";
 				if (mval.HasMember(protoken)) {
 					if (!mval[protoken].IsString()) {throw (ChException( "Invalid string after '"+std::string(protoken)+"'"));}
 					char buffer[200];
@@ -201,14 +201,14 @@ public:
 					if (!enum_parsed) {throw (ChException( "Invalid probability type after '"+std::string(protoken)+"', use PARTICLE_PROBABILITY or MASS_PROBABILITY"));}
 				}
 
-				char* famtoken = "families";
+				char* famtoken = (char*) "families";
 				if (mval.HasMember(famtoken)) {
 					if (!mval[famtoken].IsArray()) {throw (ChException( "Invalid array after '"+std::string(token)+"'"));}
 					for (rapidjson::SizeType i = 0; i < mval[famtoken].Size(); i++)
 					{
 						double mprob=0;
 
-						token = "probability";
+						token = (char*) "probability";
 						if (mval[famtoken][i].HasMember(token)) {
 							if (!mval[famtoken][i][token].IsNumber()) {throw (ChException( "Invalid number (range from 0 to 1) after '"+std::string(token)+"'"));}
 							mprob = mval[famtoken][i][token].GetDouble();
@@ -224,12 +224,12 @@ public:
 			// All classes inherited be ChRandomShapeCreator have this in common:
 			if(parsed_creator)
 			{
-				token = "add_collision_shape";
+				token = (char*) "add_collision_shape";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsBool()) {throw (ChException( "Invalid true/false flag after '"+std::string(token)+"'"));}
 					parsed_creator->SetAddCollisionShape( mval[token].GetBool() );
 				}
-				token = "add_visualization_asset";
+				token = (char*) "add_visualization_asset";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsBool()) {throw (ChException( "Invalid true/false flag after '"+std::string(token)+"'"));}
 					parsed_creator->SetAddVisualizationAsset( mval[token].GetBool() );
@@ -240,7 +240,7 @@ public:
 				double	parsed_conductivity = -1.0;
 				ChColor parsed_color = ChColor(-1,0,0);
 
-				token = "material_type";
+				token = (char*) "material_type";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsString()) {throw (ChException( "Invalid string after '"+std::string(token)+"'"));}
 					if (mval[token].GetString()==std::string("plastic")) {parsed_mattype = ElectricParticleProperty::e_mat_plastic; parsed_conductivity = 0;}
@@ -248,12 +248,12 @@ public:
 					if (mval[token].GetString()==std::string("other"))	 {parsed_mattype = ElectricParticleProperty::e_mat_other;   parsed_conductivity = 0;}
 					if (parsed_conductivity ==-1) {throw (ChException( "Invalid material_type, only \"plastic\"|\"metal\"|\"other\" are supported."));}
 				}
-				token = "conductivity";
+				token = (char*) "conductivity";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsNumber()) {throw (ChException( "Invalid number after '"+std::string(token)+"'"));}
 					parsed_conductivity = mval[token].GetDouble();
 				}
-				token = "color";
+				token = (char*) "color";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsArray()) {throw (ChException( "Invalid array after '"+std::string(token)+"'"));}
 					if (mval[token].Size() != 3)  {throw (ChException( "Invalid color array size: must have 3 numbers (RGB, in 0..1 range)."));}	

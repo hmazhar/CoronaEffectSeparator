@@ -24,32 +24,32 @@ public:
 		char* token;
 		if (!mval.IsObject()) {throw (ChException( "Invalid object after 'CES_forces'"));}
 
-		token = "U";
+		token = (char*) "U";
 		if (mval.HasMember(token)) {
 			if (!mval[token].IsNumber()) {throw (ChException( "Invalid number after '"+std::string(token)+"'"));}
 			ces_forces.U = mval[token].GetDouble();
 		}
-		token = "L";
+		token = (char*) "L";
 		if (mval.HasMember(token)) {
 			if (!mval[token].IsNumber()) {throw (ChException( "Invalid number after '"+std::string(token)+"'"));}
 			ces_forces.L = mval[token].GetDouble();
 		}
-		token = "alpha_deg";
+		token = (char*) "alpha_deg";
 		if (mval.HasMember(token)) {
 			if (!mval[token].IsNumber()) {throw (ChException( "Invalid number after '"+std::string(token)+"'"));}
 			ces_forces.alpha = (CH_C_PI/180)*mval[token].GetDouble();
 		}
-		token = "drum_diameter";
+		token = (char*) "drum_diameter";
 		if (mval.HasMember(token)) {
 			if (!mval[token].IsNumber()) {throw (ChException( "Invalid number after '"+std::string(token)+"'"));}
 			ces_forces.drumdiameter = mval[token].GetDouble();
 		}
-		token = "drum_width";
+		token = (char*) "drum_width";
 		if (mval.HasMember(token)) {
 			if (!mval[token].IsNumber()) {throw (ChException( "Invalid number after '"+std::string(token)+"'"));}
 			ces_forces.drum_width = mval[token].GetDouble();
 		}
-		token = "electrode_diameter";
+		token = (char*) "electrode_diameter";
 		if (mval.HasMember(token)) {
 			if (!mval[token].IsNumber()) {throw (ChException( "Invalid number after '"+std::string(token)+"'"));}
 			ces_forces.electrodediameter = mval[token].GetDouble();

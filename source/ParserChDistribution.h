@@ -26,7 +26,7 @@ public:
 
 		char* token;
 
-		token = "type";
+		token = (char*) "type";
 		if (mval.HasMember(token)) 
 		{
 			if (!mval[token].IsString()) {throw (ChException( "Invalid string after '"+std::string(token)+"'"));}
@@ -37,7 +37,7 @@ public:
 			{
 				double value=0;
 
-				token = "value";
+				token = (char*) "value";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsNumber()) {throw (ChException( "Invalid number after '"+std::string(token)+"'"));}
 					value = mval[token].GetDouble();
@@ -53,12 +53,12 @@ public:
 				double mmin=0;
 				double mmax=1;
 
-				token = "min";
+				token = (char*) "min";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsNumber()) {throw (ChException( "Invalid number after '"+std::string(token)+"'"));}
 					mmin = mval[token].GetDouble();
 				}
-				token = "max";
+				token = (char*) "max";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsNumber()) {throw (ChException( "Invalid number after '"+std::string(token)+"'"));}
 					mmax = mval[token].GetDouble();
@@ -74,12 +74,12 @@ public:
 				double variance=1;
 				double mean=0;
 
-				token = "variance";
+				token = (char*) "variance";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsNumber()) {throw (ChException( "Invalid number after '"+std::string(token)+"'"));}
 					variance = mval[token].GetDouble();
 				}
-				token = "mean";
+				token = (char*) "mean";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsNumber()) {throw (ChException( "Invalid number after '"+std::string(token)+"'"));}
 					mean = mval[token].GetDouble();
@@ -96,12 +96,12 @@ public:
 				double lambda=1;
 				double k=1;
 
-				token = "lambda";
+				token = (char*) "lambda";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsNumber()) {throw (ChException( "Invalid number after '"+std::string(token)+"'"));}
 					lambda = mval[token].GetDouble();
 				}
-				token = "k";
+				token = (char*) "k";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsNumber()) {throw (ChException( "Invalid number after '"+std::string(token)+"'"));}
 					k = mval[token].GetDouble();
@@ -118,12 +118,12 @@ public:
 				double average=1;
 				double mmin=1;
 
-				token = "average";
+				token = (char*) "average";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsNumber()) {throw (ChException( "Invalid number after '"+std::string(token)+"'"));}
 					average = mval[token].GetDouble();
 				}
-				token = "min";
+				token = (char*) "min";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsNumber()) {throw (ChException( "Invalid number after '"+std::string(token)+"'"));}
 					mmin = mval[token].GetDouble();
@@ -142,7 +142,7 @@ public:
 				std::vector< double > mx;
 				std::vector< double > my;
 
-				token = "x";
+				token = (char*) "x";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsArray()) {throw (ChException( "Invalid x array in ChContinuumDistribution."));}
 					for (rapidjson::SizeType i = 0; i < mval[token].Size(); i++)
@@ -151,7 +151,7 @@ public:
 						mx.push_back(mval[token][i].GetDouble());
 					}
 				}
-				token = "y";
+				token = (char*) "y";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsArray()) {throw (ChException( "Invalid y array in ChContinuumDistribution."));}
 					for (rapidjson::SizeType i = 0; i < mval[token].Size(); i++)
@@ -183,7 +183,7 @@ public:
 				std::vector< double > mx;
 				std::vector< double > my;
 
-				token = "x";
+				token = (char*) "x";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsArray()) {throw (ChException( "Invalid x array in ChDiscreteDistribution."));}
 					for (rapidjson::SizeType i = 0; i < mval[token].Size(); i++)
@@ -192,7 +192,7 @@ public:
 						mx.push_back(mval[token][i].GetDouble());
 					}
 				}
-				token = "y";
+				token = (char*) "y";
 				if (mval.HasMember(token)) {
 					if (!mval[token].IsArray()) {throw (ChException( "Invalid y array in ChDiscreteDistribution."));}
 					for (rapidjson::SizeType i = 0; i < mval[token].Size(); i++)

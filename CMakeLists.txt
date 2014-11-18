@@ -55,8 +55,8 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 ADD_EXECUTABLE(conveyor
                 source/conveyor_Ida.cpp
 				source/SimulatorCES.h				
-				source/UserInterfaceEventReceiver.cpp
-				source/UserInterfaceEventReceiver.h
+				#source/UserInterfaceEventReceiver.cpp
+				#source/UserInterfaceEventReceiver.h
 				source/ElectricParticleProperty.h
 				source/ElectricForcesCES.h
 				source/ProcessFlow.h
