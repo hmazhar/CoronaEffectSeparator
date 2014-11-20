@@ -42,6 +42,9 @@ real drumspeed_rpm = 44.8;
 real drumspeed_radss = drumspeed_rpm * ((2.0 * CH_C_PI) / 60.0);
 
 utils::Generator* gen;
+ElectricForcesCES ces_forces;
+
+ChCoordsys<> CS_Spazzola, CS_Splitter2, CS_Splitter1, CS_Drum;
 
 // Optional: define a callback to be exectuted at each creation of a metal particle:
 class MyCreator_metal : public utils::CallbackGenerator {
@@ -91,17 +94,21 @@ class MyCreator_plastic : public utils::CallbackGenerator {
 
 void RunTimeStep(ChSystemParallelDVI* mSys, const int frame) {
 
+  if (frame % 100 == 0) {
+    double r_g = 0.01;
+    double dist = 2 * 0.99 * r_g;
+    gen->createObjectsBox(
+        utils::REGULAR_GRID,
+        dist,
+        ChVector<>(-0.1, 0.0796399719369236 + 0.6, -0.0817847646755438),
+        ChVector<>(0.14, 0, 0.14),
+        ChVector<>(0, 0, 0));
+  }
 
-	if(frame%100==0){
-		double r_g = 0.01;
-		double dist = 2 * 0.99 * r_g;
-		gen->createObjectsBox(utils::REGULAR_GRID,
-				dist,
-				ChVector<>(0.029314394817887 + 0.15, 0.0796399719369236 + 0.6, -0.0817847646755438),
-				ChVector<>(0.14, 0,0.14),
-				ChVector<>(0, 0, 0));
-	}
-
+  ces_forces.apply_forces(mSys,               // contains all bodies
+                          CS_Drum,            // pos and rotation of axis of drum (not rotating reference!)
+                          drumspeed_radss,    // speed of drum
+                          frame);
 }
 
 int main(int argc, char* argv[]) {
@@ -137,7 +144,6 @@ int main(int argc, char* argv[]) {
   ChSharedPtr<ChMaterialSurface> mat = ChSharedPtr<ChMaterialSurface>(new ChMaterialSurface);
   mat->SetFriction(0.5);
 
-  ChCoordsys<> CS_Spazzola, CS_Splitter2, CS_Splitter1, CS_Drum;
   {
     real mass = 2.60413125593896;
     ChVector<> pos(-0.0339264149957167, 0.433220509447178, -0.0817847646755438);
@@ -393,7 +399,7 @@ int main(int argc, char* argv[]) {
   m1->setDefaultMaterialDVI(mat_p);
   m1->SetCallbackPostCreation(callback_metal);
 
-  utils::MixtureIngredientPtr& m2 = gen->AddMixtureIngredient(utils::ELLIPSOID, 0.5);
+  utils::MixtureIngredientPtr& m2 = gen->AddMixtureIngredient(utils::SPHERE, 0.5);
   m2->setDefaultSize(0.003);
   m2->setDefaultDensity(946);
   m2->setDistributionSize(0.003, 1, .002, .005);
