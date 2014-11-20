@@ -52,7 +52,7 @@ include_directories(
 #         Set c++ sources for building the exe, as usual in CMake
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-ADD_EXECUTABLE(conveyor
+ADD_EXECUTABLE(ida_conveyor
                 source/conveyor_Ida.cpp
 				source/SimulatorCES.h				
 				#source/UserInterfaceEventReceiver.cpp
@@ -64,11 +64,14 @@ ADD_EXECUTABLE(conveyor
 				source/ParserElectricForcesCES.h
 				source/ParserChRandomShapeCreator.h
 				source/ParserChDistribution.h )
-
+ADD_EXECUTABLE(conveyor_simplified
+                source/conveyor_simplified.cpp
+               )
 #--------------------------------------------------------------
 
 #--------------------------------------------------------------
 
 #--------------------------------------------------------------
 
-TARGET_LINK_LIBRARIES(conveyor ${LIBRARIES} )
+TARGET_LINK_LIBRARIES(ida_conveyor ${LIBRARIES} )
+TARGET_LINK_LIBRARIES(conveyor_simplified ${LIBRARIES} )
