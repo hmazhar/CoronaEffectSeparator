@@ -103,7 +103,7 @@ void RunTimeStep(ChSystemParallelDVI* mSys, const int frame) {
   if (frame % 100 == 0) {
     double r_g = 0.01;
     double dist =  0.99 * r_g;
-    gen->createObjectsBox(utils::POISSON_DISK, dist, ChVector<>(-0.1, 0.0796399719369236 + 0.57, -0.0817847646755438), ChVector<>(0.14, 0, 0.14), ChVector<>(0, 0, 0));
+    gen->createObjectsBox(utils::POISSON_DISK, dist, ChVector<>(-0.1, 0.0796399719369236 + 0.56, -0.0817847646755438), ChVector<>(0.14, 0, 0.14), ChVector<>(0, 0, 0));
   }
   // Larger radius will not create forces
 
@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
   system_parallel->GetSettings()->min_threads = 2;
   system_parallel->GetSettings()->collision.collision_envelope = (0.001 * .05);
   system_parallel->GetSettings()->collision.bins_per_axis = I3(25, 50, 25);
-  system_parallel->GetSettings()->collision.narrowphase_algorithm = NARROWPHASE_HYBRID_MPR;
+  system_parallel->GetSettings()->collision.narrowphase_algorithm = NARROWPHASE_GJK;
   system_parallel->Set_G_acc(gravity);
   system_parallel->SetStep(timestep);
 
@@ -292,28 +292,28 @@ int main(int argc, char* argv[]) {
   utils::MixtureIngredientPtr& m1 = gen->AddMixtureIngredient(utils::SPHERE, 0.25);
   m1->setDefaultSize(0.0005);
   m1->setDefaultDensity(8400);
-  // m1->setDistributionSize(0.003, 1, .002, .005);
+  m1->setDistributionSize(0.0005, 1, 0.0005, 0.001);
   m1->setDefaultMaterialDVI(mat_p);
   m1->SetCallbackPostCreation(callback_metal);
 
   utils::MixtureIngredientPtr& m2 = gen->AddMixtureIngredient(utils::BOX, 0.25);
   m2->setDefaultSize(0.0005);
   m2->setDefaultDensity(946);
-  // m2->setDistributionSize(0.003, 1, .002, .005);
+  m2->setDistributionSize(0.0005, 1, 0.0005, 0.001);
   m2->setDefaultMaterialDVI(mat_p);
   m2->SetCallbackPostCreation(callback_plastic);
 
   utils::MixtureIngredientPtr& m3 = gen->AddMixtureIngredient(utils::CYLINDER, 0.25);
   m3->setDefaultSize(0.0005);
   m3->setDefaultDensity(946);
-  // m2->setDistributionSize(0.003, 1, .002, .005);
+  m3->setDistributionSize(0.0005, 1, 0.0005, 0.001);
   m3->setDefaultMaterialDVI(mat_p);
   m3->SetCallbackPostCreation(callback_plastic);
 
   utils::MixtureIngredientPtr& m4 = gen->AddMixtureIngredient(utils::ELLIPSOID, 0.25);
   m4->setDefaultSize(0.0005);
   m4->setDefaultDensity(946);
-  // m2->setDistributionSize(0.003, 1, .002, .005);
+  m4->setDistributionSize(0.0005, 1, 0.0005, 0.001);
   m4->setDefaultMaterialDVI(mat_p);
   m4->SetCallbackPostCreation(callback_plastic);
   gen->setBodyIdentifier(Id_g);
@@ -336,14 +336,13 @@ int main(int argc, char* argv[]) {
 //  }
 //  exit(0);
 
-  // gl_window.StartDrawLoop(timestep);
-
   int file = 0;
+  int save_every = 1.0 / timestep / 600.0;
   for (int i = 0; i < num_steps; i++) {
     system_parallel->DoStepDynamics(timestep);
-    TimingOutput(system_parallel);
-    int save_every = 1.0 / timestep / 600.0;
     RunTimeStep(system_parallel, i);
+    TimingOutput(system_parallel);
+
     if (i % save_every == 0) {
       std::stringstream ss;
       std::cout << "Frame: " << file << std::endl;
