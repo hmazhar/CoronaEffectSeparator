@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
   system_parallel->GetSettings()->min_threads = 2;
   system_parallel->GetSettings()->collision.collision_envelope = (0.001 * .05);
   system_parallel->GetSettings()->collision.bins_per_axis = I3(25, 50, 25);
-  system_parallel->GetSettings()->collision.narrowphase_algorithm = NARROWPHASE_GJK;
+  system_parallel->GetSettings()->collision.narrowphase_algorithm = NARROWPHASE_HYBRID_MPR;
   system_parallel->Set_G_acc(gravity);
   system_parallel->SetStep(timestep);
 
