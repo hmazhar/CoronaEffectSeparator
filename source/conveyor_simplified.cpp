@@ -33,7 +33,7 @@ using namespace chrono::collision;
 using namespace chrono::utils;
 using namespace chrono::opengl;
 
-real timestep = .00025;
+real timestep = .0001;
 real seconds_to_simulate = 10;
 
 int max_iter = 10;
@@ -100,7 +100,7 @@ class MyCreator_plastic : public utils::CallbackGenerator {
 void RunTimeStep(ChSystemParallelDVI* mSys, const int frame) {
   //.5mm - 1mm (dia)
   // 1ms timestep
-  if (frame % 100 == 0) {
+  if (frame % 250 == 0) {
     double r_g = 0.01;
     double dist =  0.99 * r_g;
     gen->createObjectsBox(utils::POISSON_DISK, dist, ChVector<>(-0.1, 0.0796399719369236 + 0.56, -0.0817847646755438), ChVector<>(0.14, 0, 0.14), ChVector<>(0, 0, 0));
@@ -124,7 +124,7 @@ int main(int argc, char* argv[]) {
   system_parallel->GetSettings()->solver.max_iteration_bilateral = 30;
   system_parallel->GetSettings()->solver.tolerance = (.00);
   system_parallel->GetSettings()->solver.alpha = (0);
-  system_parallel->GetSettings()->solver.contact_recovery_speed = (.1);
+  system_parallel->GetSettings()->solver.contact_recovery_speed = (.2);
   system_parallel->ChangeSolverType(APGD);
   system_parallel->GetSettings()->min_threads = 2;
   system_parallel->GetSettings()->collision.collision_envelope = (0.001 * .05);
