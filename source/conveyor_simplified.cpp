@@ -111,17 +111,17 @@ void RunTimeStep(ChSystemParallelDVI* mSys, const int frame) {
   //                          drumspeed_radss,    // speed of drum
   //                          frame);
 
-    ang -= drumspeed_radss * timestep;
-    if (ang <= 0) {
-      ang = 2 * CH_C_PI;
-    }
-    Quaternion q1;
-    q1.Q_from_AngZ(ang);
-    Drum->SetPos(Vector(0.178496411, 0.42749398, -0.081784765));
-    Drum->SetPos_dt(Vector(0, 0, 0));
-    Drum->SetRot(q1);
+  ang -= drumspeed_radss * timestep;
+  if (ang <= 0) {
+    ang = 2 * CH_C_PI;
+  }
+  Quaternion q1;
+  q1.Q_from_AngZ(ang);
+  Drum->SetPos(Vector(0.178496411, 0.42749398, -0.081784765));
+  Drum->SetPos_dt(Vector(0, 0, 0));
+  Drum->SetRot(q1);
 
-    Drum->SetWvel_loc(Vector(0, 0, -drumspeed_radss));
+  Drum->SetWvel_loc(Vector(0, 0, -drumspeed_radss));
 }
 
 int main(int argc, char* argv[]) {
@@ -129,10 +129,10 @@ int main(int argc, char* argv[]) {
 
   ChSystemParallelDVI* system_parallel = new ChSystemParallelDVI;
   system_parallel->SetIntegrationType(ChSystem::INT_ANITESCU);
-  system_parallel->GetSettings()->solver.solver_mode = SLIDING;
+  system_parallel->GetSettings()->solver.solver_mode = SPINNING;
   system_parallel->GetSettings()->solver.max_iteration_normal = (30);
   system_parallel->GetSettings()->solver.max_iteration_sliding = 30;  //(max_iter * 2);
-  system_parallel->GetSettings()->solver.max_iteration_spinning = (10);
+  system_parallel->GetSettings()->solver.max_iteration_spinning = (30);
   system_parallel->GetSettings()->solver.max_iteration_bilateral = 0;
   system_parallel->GetSettings()->solver.tolerance = (.00);
   system_parallel->GetSettings()->solver.alpha = (0);
@@ -155,8 +155,8 @@ int main(int argc, char* argv[]) {
   ChSharedBodyPtr Conveyer = ChSharedBodyPtr(new ChBody(new ChCollisionModelParallel));
 
   ChSharedPtr<ChMaterialSurface> mat = ChSharedPtr<ChMaterialSurface>(new ChMaterialSurface);
-  mat->SetFriction(1.0);
-  //mat->SetRollingFriction(1.0);
+  mat->SetFriction(.5);
+  mat->SetRollingFriction(1.0);
 
   ChSharedPtr<ChMaterialSurface> mat_conveyor = ChSharedPtr<ChMaterialSurface>(new ChMaterialSurface);
   mat_conveyor->SetFriction(.05);
@@ -323,7 +323,7 @@ int main(int argc, char* argv[]) {
 
   ChSharedPtr<ChMaterialSurface> mat_p = ChSharedPtr<ChMaterialSurface>(new ChMaterialSurface);
   mat_p->SetFriction(.2);  // This is so that it is averaged properly
-  //mat_p->SetRollingFriction(1.0);
+  mat_p->SetRollingFriction(1.0);
   gen = new utils::Generator(system_parallel);
   int Id_g = 100;
 
@@ -362,23 +362,23 @@ int main(int argc, char* argv[]) {
   m4->SetCallbackPostCreation(callback_plastic);
   gen->setBodyIdentifier(Id_g);
 
-//  opengl::ChOpenGLWindow& gl_window = opengl::ChOpenGLWindow::getInstance();
-//  gl_window.Initialize(1280, 720, "CES", system_parallel);
-//  gl_window.SetCamera(ChVector<>(0, 0, -2), ChVector<>(0, 0, 0), ChVector<>(0, 1, 0), .05f, 0.01, 100);
-//  gl_window.viewer->cloud.SetPointSize(.001);
-//  gl_window.viewer->contact_renderer.SetPointSize(.001);
-//  // gl_window.Pause();
-//  for (int i = 0; i < num_steps; i++) {
-//
-//    if (gl_window.Active()) {
-//      if (gl_window.DoStepDynamics(timestep)) {
-//        RunTimeStep(system_parallel, i);
-//        TimingOutput(system_parallel);
-//      }
-//      gl_window.Render();
-//    }
-//  }
-//  exit(0);
+  //  opengl::ChOpenGLWindow& gl_window = opengl::ChOpenGLWindow::getInstance();
+  //  gl_window.Initialize(1280, 720, "CES", system_parallel);
+  //  gl_window.SetCamera(ChVector<>(0, 0, -2), ChVector<>(0, 0, 0), ChVector<>(0, 1, 0), .05f, 0.01, 100);
+  //  gl_window.viewer->cloud.SetPointSize(.001);
+  //  gl_window.viewer->contact_renderer.SetPointSize(.001);
+  //  // gl_window.Pause();
+  //  for (int i = 0; i < num_steps; i++) {
+  //
+  //    if (gl_window.Active()) {
+  //      if (gl_window.DoStepDynamics(timestep)) {
+  //        RunTimeStep(system_parallel, i);
+  //        TimingOutput(system_parallel);
+  //      }
+  //      gl_window.Render();
+  //    }
+  //  }
+  //  exit(0);
 
   int file = 0;
   int save_every = 1.0 / timestep / 600.0;
