@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
 
   ChSystemParallelDVI* system_parallel = new ChSystemParallelDVI;
   system_parallel->SetIntegrationType(ChSystem::INT_ANITESCU);
-  system_parallel->GetSettings()->solver.solver_mode = SPINNING;
+  system_parallel->GetSettings()->solver.solver_mode = SLIDING;
   system_parallel->GetSettings()->solver.max_iteration_normal = (30);
   system_parallel->GetSettings()->solver.max_iteration_sliding = 30;  //(max_iter * 2);
   system_parallel->GetSettings()->solver.max_iteration_spinning = (30);
@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
   mat->SetRollingFriction(1.0);
 
   ChSharedPtr<ChMaterialSurface> mat_conveyor = ChSharedPtr<ChMaterialSurface>(new ChMaterialSurface);
-  mat_conveyor->SetFriction(.05);
+  mat_conveyor->SetFriction(0);
 
   {
     real mass = 2.604131256;
