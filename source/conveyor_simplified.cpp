@@ -33,7 +33,7 @@ using namespace chrono::collision;
 using namespace chrono::utils;
 using namespace chrono::opengl;
 
-real timestep = .00025;
+real timestep = .0001;
 real seconds_to_simulate = 10;
 
 int max_iter = 10;
@@ -98,7 +98,7 @@ double ang = 0;
 void RunTimeStep(ChSystemParallelDVI* mSys, const int frame) {
   //.5mm - 1mm (dia)
   // 1ms timestep
-  if (frame % 150 == 0) {
+  if (frame % 400 == 0) {
     double r_g = 0.01;
     double dist = 0.99 * r_g;
     gen->createObjectsBox(utils::POISSON_DISK, dist, ChVector<>(-0.1, 0.0796399719369236 + 0.56, -0.0817847646755438),
@@ -131,15 +131,15 @@ int main(int argc, char* argv[]) {
   system_parallel->SetIntegrationType(ChSystem::INT_ANITESCU);
   system_parallel->GetSettings()->solver.solver_mode = SLIDING;
   system_parallel->GetSettings()->solver.max_iteration_normal = (30);
-  system_parallel->GetSettings()->solver.max_iteration_sliding = 30;  //(max_iter * 2);
-  system_parallel->GetSettings()->solver.max_iteration_spinning = (30);
+  system_parallel->GetSettings()->solver.max_iteration_sliding = 60;  //(max_iter * 2);
+  system_parallel->GetSettings()->solver.max_iteration_spinning = (0);
   system_parallel->GetSettings()->solver.max_iteration_bilateral = 0;
   system_parallel->GetSettings()->solver.tolerance = (.00);
   system_parallel->GetSettings()->solver.alpha = (0);
-  system_parallel->GetSettings()->solver.contact_recovery_speed = (.2);
+  system_parallel->GetSettings()->solver.contact_recovery_speed = (1);
   system_parallel->ChangeSolverType(APGD);
   system_parallel->GetSettings()->min_threads = 2;
-  system_parallel->GetSettings()->collision.collision_envelope = (0.001 * .05);
+  system_parallel->GetSettings()->collision.collision_envelope = (0.001 * .2);
   system_parallel->GetSettings()->collision.bins_per_axis = I3(25, 50, 25);
   system_parallel->GetSettings()->collision.narrowphase_algorithm = NARROWPHASE_HYBRID_GJK;
   system_parallel->Set_G_acc(gravity);
