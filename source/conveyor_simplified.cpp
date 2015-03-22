@@ -138,6 +138,9 @@ int main(int argc, char* argv[]) {
   system_parallel->GetSettings()->solver.alpha = (0);
   system_parallel->GetSettings()->solver.contact_recovery_speed = (1);
   system_parallel->ChangeSolverType(APGD);
+  system_parallel->GetSettings()->collision.use_aabb_active = true;
+  system_parallel->GetSettings()->collision.aabb_min = R3(-1, -1, -1);
+  system_parallel->GetSettings()->collision.aabb_max = R3(1, 1, 1);
   system_parallel->GetSettings()->min_threads = 2;
   system_parallel->GetSettings()->collision.collision_envelope = (0.001 * .2);
   system_parallel->GetSettings()->collision.bins_per_axis = I3(25, 50, 25);
@@ -386,6 +389,13 @@ int main(int argc, char* argv[]) {
     system_parallel->DoStepDynamics(timestep);
     RunTimeStep(system_parallel, i);
     TimingOutput(system_parallel);
+
+    if (i == 0) {
+      system_parallel->GetSettings()->collision.aabb_min =
+          system_parallel->data_manager->measures.collision.min_bounding_point;
+      system_parallel->GetSettings()->collision.aabb_max =
+          system_parallel->data_manager->measures.collision.max_bounding_point;
+    }
 
     if (i % save_every == 0) {
       std::stringstream ss;
