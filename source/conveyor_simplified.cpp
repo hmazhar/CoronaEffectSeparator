@@ -71,6 +71,77 @@ void RunTimeStep(ChSystemParallelDVI* mSys, const int frame) {
   Drum->SetWvel_loc(Vector(0, 0, -drumspeed_radss));
 }
 
+ChSharedPtr<ChBody> CreateBoxContainer(ChSystem* system,
+                                       int id,
+                                       ChSharedPtr<ChMaterialSurface>& mat,
+                                       const ChVector<>& hdim,
+                                       double hthick,
+                                       const ChVector<>& pos,
+                                       const ChQuaternion<>& rot,
+                                       bool collide,
+                                       bool y_up,
+                                       bool overlap,
+                                       bool closed) {
+  // Infer system type and collision type.
+  SystemType sysType = GetSystemType(system);
+  CollisionType cdType = GetCollisionType(system);
+  assert(sysType == SEQUENTIAL_DVI || sysType == PARALLEL_DVI);
+
+  // Create the body and set material
+  ChSharedPtr<ChBody> body;
+
+  if (sysType == SEQUENTIAL_DVI || cdType == BULLET_CD)
+    body = ChSharedPtr<ChBody>(new ChBody());
+  else
+    body = ChSharedPtr<ChBody>(new ChBody(new collision::ChCollisionModelParallel));
+
+  body->SetMaterialSurface(mat);
+
+  // Set body properties and geometry.
+  body->SetIdentifier(id);
+
+  utils::InitializeObject(body, 1, mat, pos, QUNIT, collide, true, 8, 8);
+
+  double o_lap = 0;
+  if (overlap) {
+    o_lap = hthick * 2;
+  }
+  if (y_up) {
+    AddBoxGeometry(body.get_ptr(), ChVector<>(hdim.x + o_lap, hthick, hdim.y + o_lap), ChVector<>(0, -hthick, 0));
+    AddBoxGeometry(body.get_ptr(), ChVector<>(hthick, hdim.z + o_lap, hdim.y + o_lap),
+                   ChVector<>(-hdim.x - hthick, hdim.z, 0));
+    AddBoxGeometry(body.get_ptr(), ChVector<>(hthick, hdim.z + o_lap, hdim.y + o_lap),
+                   ChVector<>(hdim.x + hthick, hdim.z, 0));
+    AddBoxGeometry(body.get_ptr(), ChVector<>(hdim.x + o_lap, hdim.z + o_lap, hthick),
+                   ChVector<>(0, hdim.z, -hdim.y - hthick));
+    AddBoxGeometry(body.get_ptr(), ChVector<>(hdim.x + o_lap, hdim.z + o_lap, hthick),
+                   ChVector<>(0, hdim.z, hdim.y + hthick));
+    if (closed) {
+      AddBoxGeometry(body.get_ptr(), ChVector<>(hdim.x + o_lap, hthick, hdim.y + o_lap),
+                     ChVector<>(0, hdim.z * 2 + hthick, 0));
+    }
+  } else {
+    AddBoxGeometry(body.get_ptr(), ChVector<>(hdim.x + o_lap, hdim.y + o_lap, hthick), ChVector<>(0, 0, -hthick));
+    AddBoxGeometry(body.get_ptr(), ChVector<>(hthick, hdim.y + o_lap, hdim.z + o_lap),
+                   ChVector<>(-hdim.x - hthick, 0, hdim.z));
+    AddBoxGeometry(body.get_ptr(), ChVector<>(hthick, hdim.y + o_lap, hdim.z + o_lap),
+                   ChVector<>(hdim.x + hthick, 0, hdim.z));
+    AddBoxGeometry(body.get_ptr(), ChVector<>(hdim.x + o_lap, hthick, hdim.z + o_lap),
+                   ChVector<>(0, -hdim.y - hthick, hdim.z));
+    AddBoxGeometry(body.get_ptr(), ChVector<>(hdim.x + o_lap, hthick, hdim.z + o_lap),
+                   ChVector<>(0, hdim.y + hthick, hdim.z));
+    if (closed) {
+      AddBoxGeometry(body.get_ptr(), ChVector<>(hdim.x + o_lap, hdim.y + o_lap, hthick),
+                     ChVector<>(0, 0, hdim.z * 2 + hthick));
+    }
+  }
+  body->GetCollisionModel()->BuildModel();
+
+  // Attach the body to the system.
+  system->AddBody(body);
+  return body;
+}
+
 int main(int argc, char* argv[]) {
   GetLog() << "Initializing Simulator \n";
 
@@ -83,14 +154,14 @@ int main(int argc, char* argv[]) {
   system_parallel->GetSettings()->solver.max_iteration_bilateral = 0;
   system_parallel->GetSettings()->solver.tolerance = (0);
   system_parallel->GetSettings()->solver.alpha = (0);
-  system_parallel->GetSettings()->solver.contact_recovery_speed = (10);
+  system_parallel->GetSettings()->solver.contact_recovery_speed = (1);
   system_parallel->ChangeSolverType(APGD);
   system_parallel->GetSettings()->collision.use_aabb_active = true;
   system_parallel->GetSettings()->collision.aabb_min = R3(-1, -1, -1) * ws;
   system_parallel->GetSettings()->collision.aabb_max = R3(1, 1, 1) * ws;
   system_parallel->GetSettings()->min_threads = 2;
-  system_parallel->GetSettings()->collision.collision_envelope = (0.001 * .2 * ws);
-  system_parallel->GetSettings()->collision.bins_per_axis = I3(25, 50, 25);
+  system_parallel->GetSettings()->collision.collision_envelope = (0.001 * .05 * ws);
+  system_parallel->GetSettings()->collision.bins_per_axis = I3(50, 50, 30);
   system_parallel->GetSettings()->collision.narrowphase_algorithm = NARROWPHASE_HYBRID_GJK;
   system_parallel->Set_G_acc(gravity);
   system_parallel->SetStep(timestep);
@@ -124,25 +195,25 @@ int main(int argc, char* argv[]) {
     utils::FinalizeObject(Spazzola, system_parallel);
     CS_Spazzola = ChCoordsys<>(pos);
   }
-  {
-    mass = 0.169782297;
-    pos = Vector(0.416156012, 0.286549383, -0.081784765) * ws;
-    dims = Vector(.002, 0.075, 0.15) * ws;
-    Quaternion rot(0.97236992, 0, 0, 0.233445364);
-    utils::InitializeObject(Splitter2, mass, mat, pos, rot, true, true, 8, 8);
-    Splitter2->SetInertia(utils::CalcBoxGyration(dims) * mass);
-    utils::AddBoxGeometry(Splitter2.get_ptr(), dims, Vector(0.002, 0, 0) * ws, QUNIT);
-    utils::FinalizeObject(Splitter2, system_parallel);
-  }
-  {
-    mass = 0.136861816;
-    pos = Vector(0.324996411, 0.27399398, -0.081784765) * ws;
-    dims = Vector(.002, 0.0535, 0.1515) * ws;
-    utils::InitializeObject(Splitter, mass, mat, pos, QUNIT, true, true, 8, 8);
-    Splitter->SetInertia(utils::CalcBoxGyration(dims) * mass);
-    utils::AddBoxGeometry(Splitter.get_ptr(), dims, Vector(0.002, 0, 0) * ws, QUNIT);
-    utils::FinalizeObject(Splitter, system_parallel);
-  }
+  //  {
+  //    mass = 0.169782297;
+  //    pos = Vector(0.416156012, 0.286549383, -0.081784765) * ws;
+  //    dims = Vector(.002, 0.075, 0.15) * ws;
+  //    Quaternion rot(0.97236992, 0, 0, 0.233445364);
+  //    utils::InitializeObject(Splitter2, mass, mat, pos, rot, true, true, 8, 8);
+  //    Splitter2->SetInertia(utils::CalcBoxGyration(dims) * mass);
+  //    utils::AddBoxGeometry(Splitter2.get_ptr(), dims, Vector(0.002, 0, 0) * ws, QUNIT);
+  //    utils::FinalizeObject(Splitter2, system_parallel);
+  //  }
+  //  {
+  //    mass = 0.136861816;
+  //    pos = Vector(0.324996411, 0.27399398, -0.081784765) * ws;
+  //    dims = Vector(.002, 0.0535, 0.1515) * ws;
+  //    utils::InitializeObject(Splitter, mass, mat, pos, QUNIT, true, true, 8, 8);
+  //    Splitter->SetInertia(utils::CalcBoxGyration(dims) * mass);
+  //    utils::AddBoxGeometry(Splitter.get_ptr(), dims, Vector(0.002, 0, 0) * ws, QUNIT);
+  //    utils::FinalizeObject(Splitter, system_parallel);
+  //  }
   {
     mass = 24.01511276;
     pos = Vector(0.178496411, 0.42749398, -0.081784765) * ws;
@@ -162,8 +233,11 @@ int main(int argc, char* argv[]) {
     utils::AddBoxGeometry(Truss.get_ptr(), Vector(.002, .6, .2) * ws, Vector(-0.25, 0.427494, -0.081784765) * ws,
                           QUNIT);
     utils::AddBoxGeometry(Truss.get_ptr(), Vector(.002, .6, .2) * ws, Vector(.67, 0.427494, -0.081784765) * ws, QUNIT);
-    utils::FinalizeObject(Truss, system_parallel);
+    // utils::FinalizeObject(Truss, system_parallel);
   }
+
+  CreateBoxContainer(system_parallel, 0, mat, Vector(.35, .15, .2) * ws, .002 * ws, Vector(8, 27, -0.081784765 * ws),
+                     chrono::Q_from_AngAxis(0, VECT_X), true, true, true, true);
   {
     mass = 0.575578251;
     pos = Vector(0.181496411, 0.42339398, -0.081784765) * ws;
@@ -206,7 +280,7 @@ int main(int argc, char* argv[]) {
     utils::AddBoxGeometry(Other.get_ptr(), Vector(0.111244909, 0.018292686, 0.16500005) * ws,
                           Vector(0.455978023535446, -0.619225184316436, 5.E-08) * ws,
                           Quaternion(0.0, 0.792869, 0.609392, 0.0));
-    utils::FinalizeObject(Other, system_parallel);
+    // utils::FinalizeObject(Other, system_parallel);
   }
   {
     mass = 3.832724939;
